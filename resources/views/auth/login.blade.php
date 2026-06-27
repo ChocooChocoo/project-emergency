@@ -13,7 +13,8 @@
         <div class="card-body">
             <h2 class="h2 text-center mb-4">Sign in to your account</h2>
 
-            <form action="#" method="POST" autocomplete="off" novalidate>
+            <form action="{{ route('login') }}" method="POST" autocomplete="off" novalidate>
+                @csrf
 
                 {{-- Email --}}
                 <div class="mb-3">
@@ -22,11 +23,13 @@
                         type="email"
                         id="email"
                         name="email"
-                        class="form-control"
+                        value="{{ old('email') }}"
+                        class="form-control @error('email') is-invalid @enderror"
                         placeholder="you@example.com"
                         required
                         autofocus
                     />
+                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 {{-- Password --}}

@@ -13,20 +13,25 @@
         <div class="card-body">
             <h2 class="h2 text-center mb-4">Create your account</h2>
 
-            <form action="#" method="POST" autocomplete="off" novalidate>
+            <form action="{{ route('register') }}" method="POST" autocomplete="off" novalidate>
+                @csrf
 
                 {{-- Name --}}
-                <div class="mb-3">
-                    <label class="form-label" for="name">Full name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        class="form-control"
-                        placeholder="Jane Doe"
-                        required
-                        autofocus
-                    />
+                <div class="row">
+                    <div class="col mb-3">
+                        <label class="form-label" for="first_name">First name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ old('first_name') }}"
+                               class="form-control @error('first_name') is-invalid @enderror"
+                               placeholder="Jane" required autofocus/>
+                        @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col mb-3">
+                        <label class="form-label" for="last_name">Last name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ old('last_name') }}"
+                               class="form-control @error('last_name') is-invalid @enderror"
+                               placeholder="Doe" required/>
+                        @error('last_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                 </div>
 
                 {{-- Email --}}
@@ -36,10 +41,20 @@
                         type="email"
                         id="email"
                         name="email"
-                        class="form-control"
+                        value="{{ old('email') }}"
+                        class="form-control @error('email') is-invalid @enderror"
                         placeholder="you@example.com"
                         required
                     />
+                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                {{-- Phone (optional) --}}
+                <div class="mb-3">
+                    <label class="form-label" for="phone">Phone <span class="form-label-description">optional</span></label>
+                    <input type="text" id="phone" name="phone" value="{{ old('phone') }}"
+                           class="form-control @error('phone') is-invalid @enderror" placeholder="09xxxxxxxxx"/>
+                    @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 {{-- Password --}}
@@ -67,6 +82,7 @@
                             </a>
                         </span>
                     </div>
+                    @error('password')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                 </div>
 
                 {{-- Confirm password --}}
@@ -94,6 +110,15 @@
                             </a>
                         </span>
                     </div>
+                </div>
+
+                {{-- Terms --}}
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input type="checkbox" name="terms" value="1" class="form-check-input @error('terms') is-invalid @enderror" {{ old('terms') ? 'checked' : '' }}/>
+                        <span class="form-check-label">I agree to the terms and conditions</span>
+                    </label>
+                    @error('terms')<div class="text-danger small">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="form-footer">
