@@ -74,5 +74,11 @@
             window.feedback({ type: 'warning', confirm: 'Confirm', cancel: 'Cancel', ...opts, onConfirm });
         };
     })();
+
+    @if (session('status'))
+    document.addEventListener('DOMContentLoaded', () =>
+        window.feedback.success('Done', @js(session('status')))
+    );
+    @endif
 </script>
 @stack('scripts')
