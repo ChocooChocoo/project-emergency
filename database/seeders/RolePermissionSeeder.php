@@ -65,7 +65,8 @@ class RolePermissionSeeder extends Seeder
         // Governance-only: the LGU governs (approvals, settings, reports, oversight) and does
         // not dispatch, record care, or run hospital handoffs. The operational permissions
         // (dispatch-incidents, record-care, manage-hospitals, manage-fleet) belong to field/org
-        // roles built later; until then they are reachable only via Gate::before for super admin.
+        // roles built later; they are unassigned — even super admin cannot reach them
+        // (oversight-only; Gate::before wildcard was removed).
         $lgu->permissions()->sync(
             Permission::whereIn('code', [
                 'access-admin', 'review-approvals', 'view-audit-logs', 'manage-config',

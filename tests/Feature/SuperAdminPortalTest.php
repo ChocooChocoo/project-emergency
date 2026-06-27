@@ -37,6 +37,16 @@ class SuperAdminPortalTest extends TestCase
         }
     }
 
+    public function test_audit_viewer_renders_seeded_log_row(): void
+    {
+        \App\Services\AuditLog::record('test.action', \App\Models\User::class, $this->superAdmin()->id);
+
+        $this->actingAs($this->superAdmin())
+            ->get(route('admin.audit.index'))
+            ->assertOk()
+            ->assertSee('test.action');
+    }
+
     public function test_super_admin_is_forbidden_from_operational_routes(): void
     {
         $this->actingAs($this->superAdmin())->get(route('admin.dispatch.index'))->assertForbidden();
