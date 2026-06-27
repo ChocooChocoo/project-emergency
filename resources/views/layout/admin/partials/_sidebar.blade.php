@@ -51,6 +51,26 @@
                     </li>
                 @endcan
 
+                {{-- Archive registry --}}
+                @can('manage-archive')
+                    <li class="nav-item {{ request()->routeIs('admin.archive.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.archive.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-archive"></i></span>
+                            <span class="nav-link-title">Archive</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- Audit & system logs --}}
+                @can('view-audit-logs')
+                    <li class="nav-item {{ request()->routeIs('admin.audit.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.audit.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-list-details"></i></span>
+                            <span class="nav-link-title">Logs</span>
+                        </a>
+                    </li>
+                @endcan
+
                 {{-- Approvals --}}
                 @can('review-approvals')
                     <li class="nav-item {{ request()->routeIs('admin.approvals.*') ? 'active' : '' }}">
@@ -151,6 +171,16 @@
                         <a class="nav-link" href="{{ route('admin.reports.index') }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-report-analytics"></i></span>
                             <span class="nav-link-title">Reports</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- City Settings --}}
+                @can('manage-config')
+                    <li class="nav-item {{ request()->routeIs('admin.config.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.config.edit') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-settings"></i></span>
+                            <span class="nav-link-title">City Settings</span>
                         </a>
                     </li>
                 @endcan

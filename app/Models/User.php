@@ -21,6 +21,7 @@ class User extends Authenticatable
         'email', 'phone', 'alt_phone', 'password',
         'account_status', 'terms_accepted_at', 'terms_version',
         'email_verified_at', 'is_approved', 'is_active',
+        'is_archived', 'archived_at', 'archived_by', 'archive_reason',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -68,7 +69,7 @@ class User extends Authenticatable
         return $this->account_type === 'super_admin';
     }
 
-    /** All effective permission codes: super_admin = wildcard; else roles' perms ∪ direct grants. */
+    /** All effective permission codes: roles' perms ∪ direct grants. */
     public function permissionCodes(): Collection
     {
         return $this->roles->flatMap(fn (Role $r) => $r->permissions->pluck('code'))
@@ -77,8 +78,13 @@ class User extends Authenticatable
             ->values();
     }
 
+    /**
+     * Access derives entirely from seeded role/direct permissions — no super_admin wildcard.
+     * isSuperAdmin() is now a label only. Break-glass = a seeder/DB change.
+     * ponytail: no separate developer_root bypass tier until it's actually needed.
+     */
     public function hasPermission(string $code): bool
     {
-        return $this->isSuperAdmin() || $this->permissionCodes()->contains($code);
+        return $this->permissionCodes()->contains($code);
     }
 }

@@ -25,7 +25,8 @@ class DispatchTest extends TestCase
 
     private function superAdmin(): User
     {
-        return User::where('email', 'superadmin@rescue.test')->firstOrFail();
+        // Dispatcher-equivalent: super_admin is oversight-only now; field roles own this perm.
+        return $this->actorWith(['dispatch-incidents']);
     }
 
     private function activeOrg(): Organization

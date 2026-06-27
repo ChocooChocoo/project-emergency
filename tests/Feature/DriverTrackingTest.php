@@ -22,9 +22,14 @@ class DriverTrackingTest extends TestCase
         $this->seed([RolePermissionSeeder::class, UserSeeder::class]);
     }
 
+    private ?User $driver = null;
+
     private function superAdmin(): User
     {
-        return User::where('email', 'superadmin@rescue.test')->firstOrFail();
+        // Driver-equivalent: super_admin is oversight-only now; field roles own this perm.
+        // Memoized: driver routes are scoped to the assignment's driver_user_id, so the
+        // acting identity must stay stable across calls within a test.
+        return $this->driver ??= $this->actorWith(['drive-unit']);
     }
 
     private function assignment(): DispatchAssignment

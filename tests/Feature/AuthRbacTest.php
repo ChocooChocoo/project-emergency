@@ -29,10 +29,11 @@ class AuthRbacTest extends TestCase
 
         // Issue a code directly (the registration one isn't returned to the test),
         // then drive the verify endpoint.
+        // Citizens land on the public intake, not the console dashboard (PortalRouter).
         $code = EmailOtp::issue($user);
         $this->withSession(['pending_user_id' => $user->id])
             ->post('/verify-email', ['code' => $code])
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('request.create'));
 
         $user->refresh();
         $this->assertSame('active', $user->account_status);
@@ -49,7 +50,7 @@ class AuthRbacTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
-    /** Permission resolution: roles' perms + super_admin wildcard. */
+    /** Permission resolution: access derives only from roles' perms ∪ direct grants — no wildcard. */
     public function test_permission_resolution(): void
     {
         $perm = Permission::create(['code' => 'manage-users', 'name' => 'Manage users', 'module' => 'users']);
@@ -66,7 +67,9 @@ class AuthRbacTest extends TestCase
         $this->assertTrue($lgu->hasPermission('manage-users'));
         $this->assertFalse($lgu->hasPermission('nonexistent-perm'));
 
+        // super_admin no longer wildcards: with no roles attached it resolves nothing.
         $super = User::factory()->create(['account_type' => 'super_admin']);
-        $this->assertTrue($super->hasPermission('anything-at-all'));
+        $super->load('roles.permissions', 'directPermissions');
+        $this->assertFalse($super->hasPermission('anything-at-all'));
     }
 }

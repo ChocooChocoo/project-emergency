@@ -42,28 +42,35 @@ class RolePermissionSeeder extends Seeder
             Permission::updateOrCreate(['code' => $p['code']], $p);
         }
 
-        // Platform roles (organization_id = NULL => global). super_admin needs no explicit
-        // permission rows — Gate::before grants it everything — but we attach all anyway
-        // so the relationship is queryable.
+        // Platform roles (organization_id = NULL => global). super_admin is oversight-only:
+        // its access derives entirely from these rows now (no Gate::before wildcard). It keeps
+        // user mgmt, archive, audit, config, approvals, and read-only incident/report oversight,
+        // but NOT daily ops (dispatch/care/hospital/fleet/driver) or org/safety record management.
         $superAdmin = Role::updateOrCreate(
             ['organization_id' => null, 'name' => 'super_admin'],
             ['scope' => 'platform', 'description' => 'Dev-team root console', 'is_active' => true]
         );
-        $superAdmin->permissions()->sync(Permission::pluck('id'));
+        $superAdmin->permissions()->sync(
+            Permission::whereIn('code', [
+                'access-admin', 'manage-users', 'manage-archive', 'view-audit-logs',
+                'manage-config', 'review-approvals', 'review-org-approvals',
+                'view-incidents', 'view-reports',
+            ])->pluck('id')
+        );
 
         $lgu = Role::updateOrCreate(
             ['organization_id' => null, 'name' => 'platform_executive'],
             ['scope' => 'platform', 'description' => 'LGU / Platform Executive', 'is_active' => true]
         );
+        // Governance-only: the LGU governs (approvals, settings, reports, oversight) and does
+        // not dispatch, record care, or run hospital handoffs. The operational permissions
+        // (dispatch-incidents, record-care, manage-hospitals, manage-fleet) belong to field/org
+        // roles built later; until then they are reachable only via Gate::before for super admin.
         $lgu->permissions()->sync(
             Permission::whereIn('code', [
                 'access-admin', 'review-approvals', 'view-audit-logs', 'manage-config',
-                'manage-organizations', 'review-org-approvals', 'manage-fleet', 'view-incidents',
-                // S7–S10: LGU runs dispatch, care, hospitals and safety. drive-unit is a field
-                // role granted per-driver, so it is deliberately not on the platform executive.
-                'dispatch-incidents', 'record-care', 'manage-hospitals', 'manage-safety',
-                // S11: LGU reviews performance reports.
-                'view-reports',
+                'manage-organizations', 'review-org-approvals', 'view-incidents',
+                'manage-safety', 'view-reports',
             ])->pluck('id')
         );
     }

@@ -24,7 +24,8 @@ class FleetTest extends TestCase
 
     private function superAdmin(): User
     {
-        return User::where('email', 'superadmin@rescue.test')->firstOrFail();
+        // Org-admin-equivalent: super_admin is oversight-only now; field roles own this perm.
+        return $this->actorWith(['manage-fleet']);
     }
 
     private function org(string $planCode = 'partner_basic'): Organization

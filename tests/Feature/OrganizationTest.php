@@ -23,7 +23,8 @@ class OrganizationTest extends TestCase
 
     private function superAdmin(): User
     {
-        return User::where('email', 'superadmin@rescue.test')->firstOrFail();
+        // Now an actor with org management; super_admin is oversight-only (reviews approvals only).
+        return $this->actorWith(['manage-organizations']);
     }
 
     public function test_super_admin_can_create_org_as_pending(): void
@@ -53,7 +54,7 @@ class OrganizationTest extends TestCase
         ]);
         $org->subscription()->create(['plan_id' => $plan->id, 'status' => 'trialing']);
 
-        $this->actingAs($this->superAdmin())
+        $this->actingAs($this->actorWith(['review-org-approvals']))
             ->patch(route('admin.org-approvals.approve', $org))
             ->assertRedirect();
 

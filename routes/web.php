@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Admin\AmbulanceController;
 use App\Http\Controllers\Admin\ApprovalController;
+use App\Http\Controllers\Admin\ArchiveController;
+use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\CareController;
+use App\Http\Controllers\Admin\ConfigController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DispatchController;
 use App\Http\Controllers\Admin\DriverController;
@@ -61,6 +64,22 @@ Route::middleware(['auth', 'account.active'])->group(function () {
         Route::patch('/admin/users/{user}/active', [UserController::class, 'toggleActive'])->name('admin.users.active');
         Route::patch('/admin/users/{user}/archive', [UserController::class, 'archive'])->name('admin.users.archive');
         Route::patch('/admin/users/{user}/restore', [UserController::class, 'restore'])->name('admin.users.restore');
+    });
+
+    // S0 — City Settings (global config; LGU governance).
+    Route::middleware('can.perm:manage-config')->group(function () {
+        Route::get('/admin/config', [ConfigController::class, 'edit'])->name('admin.config.edit');
+        Route::put('/admin/config', [ConfigController::class, 'update'])->name('admin.config.update');
+    });
+
+    // S3 — Oversight: Archive registry (read + restore via existing module actions).
+    Route::middleware('can.perm:manage-archive')->group(function () {
+        Route::get('/admin/archive', [ArchiveController::class, 'index'])->name('admin.archive.index');
+    });
+
+    // S3 — Oversight: Audit & system log viewer (read-only).
+    Route::middleware('can.perm:view-audit-logs')->group(function () {
+        Route::get('/admin/audit', [AuditController::class, 'index'])->name('admin.audit.index');
     });
 
     Route::middleware('can.perm:review-approvals')->group(function () {

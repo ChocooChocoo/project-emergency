@@ -26,7 +26,8 @@ class MedicalTest extends TestCase
 
     private function superAdmin(): User
     {
-        return User::where('email', 'superadmin@rescue.test')->firstOrFail();
+        // Medic + hospital-equivalent: super_admin is oversight-only now; field roles own these.
+        return $this->actorWith(['record-care', 'manage-hospitals']);
     }
 
     private function incidentWithUnit(): Incident
