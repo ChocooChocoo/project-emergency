@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\EmailOtp;
+use App\Support\PortalRouter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +47,7 @@ class VerifyEmailController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            return redirect()->route('dashboard')->with('status', 'Email verified. Welcome!');
+            return redirect()->route(PortalRouter::homeRouteFor($user))->with('status', 'Email verified. Welcome!');
         }
 
         return redirect()->route('login')
