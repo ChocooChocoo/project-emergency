@@ -31,14 +31,14 @@ class LguPortalTest extends TestCase
         return User::where('email', 'superadmin@rescue.test')->firstOrFail();
     }
 
-    /** Console users land on dashboard; citizens land on the public intake. */
+    /** Console users land on dashboard; citizens land on their portal home. */
     public function test_portal_router_routes_by_role(): void
     {
         $citizen = User::where('email', 'citizen@rescue.test')->firstOrFail();
 
         $this->assertSame('dashboard', PortalRouter::homeRouteFor($this->lgu()));
         $this->assertSame('dashboard', PortalRouter::homeRouteFor($this->superAdmin()));
-        $this->assertSame('request.create', PortalRouter::homeRouteFor($citizen));
+        $this->assertSame('citizen.home', PortalRouter::homeRouteFor($citizen));
     }
 
     public function test_lgu_can_view_dashboard(): void

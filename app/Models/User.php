@@ -22,6 +22,7 @@ class User extends Authenticatable
         'account_status', 'terms_accepted_at', 'terms_version',
         'email_verified_at', 'is_approved', 'is_active',
         'is_archived', 'archived_at', 'archived_by', 'archive_reason',
+        'medical_info',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -37,6 +38,7 @@ class User extends Authenticatable
             'is_approved' => 'boolean',
             'is_active' => 'boolean',
             'is_archived' => 'boolean',
+            'medical_info' => 'array',
             'password' => 'hashed',
         ];
     }

@@ -29,11 +29,11 @@ class AuthRbacTest extends TestCase
 
         // Issue a code directly (the registration one isn't returned to the test),
         // then drive the verify endpoint.
-        // Citizens land on the public intake, not the console dashboard (PortalRouter).
+        // Citizens land on their portal home, not the console dashboard (PortalRouter).
         $code = EmailOtp::issue($user);
         $this->withSession(['pending_user_id' => $user->id])
             ->post('/verify-email', ['code' => $code])
-            ->assertRedirect(route('request.create'));
+            ->assertRedirect(route('citizen.home'));
 
         $user->refresh();
         $this->assertSame('active', $user->account_status);

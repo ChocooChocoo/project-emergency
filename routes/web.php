@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Citizen\CitizenController;
 use App\Http\Controllers\Intake\RequestIntakeController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +57,16 @@ Route::middleware(['auth', 'account.active'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('can.perm:access-admin')->name('dashboard');
+
+    // Citizen portal — registered citizens (no permission; everything scoped to self).
+    Route::prefix('home')->name('citizen.')->group(function () {
+        Route::get('/', [CitizenController::class, 'home'])->name('home');
+        Route::get('profile', [CitizenController::class, 'profile'])->name('profile');
+        Route::put('profile', [CitizenController::class, 'updateProfile'])->name('profile.update');
+        Route::get('medical', [CitizenController::class, 'medical'])->name('medical');
+        Route::put('medical', [CitizenController::class, 'updateMedical'])->name('medical.update');
+        Route::get('history', [CitizenController::class, 'history'])->name('history');
+    });
 
     // S3 — Super Admin modules.
     Route::middleware('can.perm:manage-users')->group(function () {
