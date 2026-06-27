@@ -50,7 +50,7 @@ class LoginController extends Controller
         $user->forceFill(['last_login_at' => now()])->save();
         $request->session()->regenerate();
 
-        return redirect()->intended(route(PortalRouter::homeRouteFor($user)));
+        return redirect()->route(PortalRouter::homeRouteFor($user));
     }
 
     public function logout(Request $request): RedirectResponse
