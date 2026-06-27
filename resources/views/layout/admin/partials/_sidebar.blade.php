@@ -12,19 +12,22 @@
         </a>
 
         {{-- Mobile user avatar --}}
-        <div class="navbar-nav flex-row d-lg-none">
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                    <span class="avatar avatar-sm">JD</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">Profile</a>
-                    <a href="#" class="dropdown-item">Settings</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('login') }}" class="dropdown-item">Sign out</a>
+        @auth
+            @php($u = auth()->user())
+            <div class="navbar-nav flex-row d-lg-none">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
+                        <span class="avatar avatar-sm">{{ strtoupper(substr($u->first_name, 0, 1).substr($u->last_name, 0, 1)) }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Sign out</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        @endauth
 
         {{-- Nav menu --}}
         <div class="collapse navbar-collapse" id="sidebar-menu">
@@ -33,109 +36,124 @@
                 {{-- Dashboard --}}
                 <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-layout-dashboard"></i>
-                        </span>
+                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-layout-dashboard"></i></span>
                         <span class="nav-link-title">Dashboard</span>
                     </a>
                 </li>
 
-                {{-- Orders --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#navbar-orders" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="navbar-orders">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-clipboard-list"></i>
-                        </span>
-                        <span class="nav-link-title">Orders</span>
-                        <span class="nav-link-arrow ms-auto">
-                            <i class="ti ti-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="navbar-nav collapse" id="navbar-orders">
-                        <a class="nav-link" href="#">All Orders</a>
-                        <a class="nav-link" href="#">New Order</a>
-                        <a class="nav-link" href="#">Pending</a>
-                        <a class="nav-link" href="#">Cancelled</a>
-                    </div>
-                </li>
-
                 {{-- Users --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#navbar-users" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="navbar-users">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-users"></i>
-                        </span>
-                        <span class="nav-link-title">Users</span>
-                        <span class="nav-link-arrow ms-auto">
-                            <i class="ti ti-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="navbar-nav collapse" id="navbar-users">
-                        <a class="nav-link" href="#">All Users</a>
-                        <a class="nav-link" href="#">Add User</a>
-                        <a class="nav-link" href="#">Roles &amp; Permissions</a>
-                    </div>
-                </li>
+                @can('manage-users')
+                    <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.users.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-users"></i></span>
+                            <span class="nav-link-title">Users</span>
+                        </a>
+                    </li>
+                @endcan
 
-                {{-- Products --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#navbar-products" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="navbar-products">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-box"></i>
-                        </span>
-                        <span class="nav-link-title">Products</span>
-                        <span class="nav-link-arrow ms-auto">
-                            <i class="ti ti-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="navbar-nav collapse" id="navbar-products">
-                        <a class="nav-link" href="#">All Products</a>
-                        <a class="nav-link" href="#">Add Product</a>
-                        <a class="nav-link" href="#">Categories</a>
-                        <a class="nav-link" href="#">Inventory</a>
-                    </div>
-                </li>
+                {{-- Approvals --}}
+                @can('review-approvals')
+                    <li class="nav-item {{ request()->routeIs('admin.approvals.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.approvals.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-user-check"></i></span>
+                            <span class="nav-link-title">Approvals</span>
+                        </a>
+                    </li>
+                @endcan
 
-                {{-- Reports --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#navbar-reports" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="navbar-reports">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-chart-bar"></i>
-                        </span>
-                        <span class="nav-link-title">Reports</span>
-                        <span class="nav-link-arrow ms-auto">
-                            <i class="ti ti-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="navbar-nav collapse" id="navbar-reports">
-                        <a class="nav-link" href="#">Sales Report</a>
-                        <a class="nav-link" href="#">User Report</a>
-                        <a class="nav-link" href="#">Revenue</a>
-                    </div>
-                </li>
+                {{-- S4 — Organizations --}}
+                @can('manage-organizations')
+                    <li class="nav-item {{ request()->routeIs('admin.organizations.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.organizations.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-building"></i></span>
+                            <span class="nav-link-title">Organizations</span>
+                        </a>
+                    </li>
+                @endcan
 
-                {{-- Settings --}}
-                <li class="nav-item mt-auto">
-                    <a class="nav-link" href="#navbar-settings" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="navbar-settings">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-settings"></i>
-                        </span>
-                        <span class="nav-link-title">Settings</span>
-                        <span class="nav-link-arrow ms-auto">
-                            <i class="ti ti-chevron-down"></i>
-                        </span>
-                    </a>
-                    <div class="navbar-nav collapse" id="navbar-settings">
-                        <a class="nav-link" href="#">General</a>
-                        <a class="nav-link" href="#">Security</a>
-                        <a class="nav-link" href="#">Notifications</a>
-                    </div>
-                </li>
+                @can('review-org-approvals')
+                    <li class="nav-item {{ request()->routeIs('admin.org-approvals.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.org-approvals.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-building-bank"></i></span>
+                            <span class="nav-link-title">Org Approvals</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S5 — Fleet --}}
+                @can('manage-fleet')
+                    <li class="nav-item {{ request()->routeIs('admin.ambulances.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.ambulances.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-ambulance"></i></span>
+                            <span class="nav-link-title">Fleet</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S6 — Incidents --}}
+                @can('view-incidents')
+                    <li class="nav-item {{ request()->routeIs('admin.incidents.*') && ! request()->routeIs('admin.care.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.incidents.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-urgent"></i></span>
+                            <span class="nav-link-title">Incidents</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S7 — Dispatch --}}
+                @can('dispatch-incidents')
+                    <li class="nav-item {{ request()->routeIs('admin.dispatch.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.dispatch.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-radar"></i></span>
+                            <span class="nav-link-title">Dispatch</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S8 — Driver --}}
+                @can('drive-unit')
+                    <li class="nav-item {{ request()->routeIs('admin.driver.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.driver.duty') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-steering-wheel"></i></span>
+                            <span class="nav-link-title">Driver</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S9 — Hospitals --}}
+                @can('manage-hospitals')
+                    <li class="nav-item {{ request()->routeIs('admin.hospitals.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.hospitals.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-building-hospital"></i></span>
+                            <span class="nav-link-title">Hospitals</span>
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- S10 — Safety --}}
+                @can('manage-safety')
+                    <li class="nav-item {{ request()->routeIs('admin.safety.*') || request()->routeIs('admin.ads.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="#navbar-safety" data-bs-toggle="collapse" role="button">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-shield-lock"></i></span>
+                            <span class="nav-link-title">Safety</span>
+                            <span class="nav-link-arrow ms-auto"><i class="ti ti-chevron-down"></i></span>
+                        </a>
+                        <div class="navbar-nav collapse {{ request()->routeIs('admin.safety.*') || request()->routeIs('admin.ads.*') ? 'show' : '' }}" id="navbar-safety">
+                            <a class="nav-link {{ request()->routeIs('admin.safety.*') ? 'active' : '' }}" href="{{ route('admin.safety.index') }}">Anti-abuse</a>
+                            <a class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }}" href="{{ route('admin.ads.index') }}">Ad placements</a>
+                        </div>
+                    </li>
+                @endcan
+
+                {{-- S11 — Reports --}}
+                @can('view-reports')
+                    <li class="nav-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.reports.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-report-analytics"></i></span>
+                            <span class="nav-link-title">Reports</span>
+                        </a>
+                    </li>
+                @endcan
 
             </ul>
         </div>

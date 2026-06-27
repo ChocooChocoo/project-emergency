@@ -15,68 +15,70 @@
                 </a>
             </div>
 
-            {{-- Notifications --}}
-            <div class="nav-item dropdown d-none d-md-flex me-2">
-                <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1"
-                    aria-label="Show notifications" data-bs-auto-close="outside">
-                    <i class="ti ti-bell fs-3"></i>
-                    <span class="badge bg-red"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-                    <div class="card">
-                        <div class="card-header d-flex">
-                            <h3 class="card-title">Notifications</h3>
-                            <div class="btn-close ms-auto" data-bs-dismiss="dropdown"></div>
-                        </div>
-                        <div class="list-group list-group-flush list-group-hoverable">
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
-                                    <div class="col text-truncate">
-                                        <a href="#" class="text-body d-block">New order received</a>
-                                        <div class="d-block text-secondary text-truncate mt-n1">2 minutes ago</div>
-                                    </div>
-                                </div>
+            {{-- Notifications (current user's own; queried inline so every admin page has it) --}}
+            @auth
+                @php
+                    $unreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                    $recentNotifications = \App\Models\Notification::where('user_id', auth()->id())->orderByDesc('id')->limit(5)->get();
+                @endphp
+                <div class="nav-item dropdown d-none d-md-flex me-2">
+                    <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1"
+                        aria-label="Show notifications" data-bs-auto-close="outside">
+                        <i class="ti ti-bell fs-3"></i>
+                        @if ($unreadCount > 0)
+                            <span class="badge bg-red"></span>
+                        @endif
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                        <div class="card">
+                            <div class="card-header d-flex">
+                                <h3 class="card-title">Notifications @if ($unreadCount > 0)<span class="badge bg-red-lt ms-2">{{ $unreadCount }}</span>@endif</h3>
+                                <div class="btn-close ms-auto" data-bs-dismiss="dropdown"></div>
                             </div>
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-auto"><span class="status-dot bg-yellow d-block"></span></div>
-                                    <div class="col text-truncate">
-                                        <a href="#" class="text-body d-block">Server load at 85%</a>
-                                        <div class="d-block text-secondary text-truncate mt-n1">15 minutes ago</div>
+                            <div class="list-group list-group-flush list-group-hoverable">
+                                @forelse ($recentNotifications as $n)
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto"><span class="status-dot {{ $n->is_read ? '' : 'status-dot-animated bg-primary' }} d-block"></span></div>
+                                            <div class="col text-truncate">
+                                                <a href="{{ route('admin.notifications.index') }}" class="text-body d-block">{{ $n->title }}</a>
+                                                <div class="d-block text-secondary text-truncate mt-n1">{{ $n->created_at?->diffForHumans() }}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                @empty
+                                    <div class="list-group-item text-secondary text-center py-3">No notifications.</div>
+                                @endforelse
                             </div>
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-auto"><span class="status-dot bg-green d-block"></span></div>
-                                    <div class="col text-truncate">
-                                        <a href="#" class="text-body d-block">Deployment completed</a>
-                                        <div class="d-block text-secondary text-truncate mt-n1">1 hour ago</div>
-                                    </div>
-                                </div>
+                            <div class="card-footer text-center p-2">
+                                <a href="{{ route('admin.notifications.index') }}" class="text-secondary">View all</a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endauth
 
             {{-- User avatar --}}
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                    <span class="avatar avatar-sm rounded bg-blue text-white">JD</span>
-                    <div class="d-none d-xl-block ps-2">
-                        <div>Jane Doe</div>
-                        <div class="mt-1 small text-secondary">Administrator</div>
+            @auth
+                @php($u = auth()->user())
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
+                        <span class="avatar avatar-sm rounded bg-blue text-white">
+                            {{ strtoupper(substr($u->first_name, 0, 1).substr($u->last_name, 0, 1)) }}
+                        </span>
+                        <div class="d-none d-xl-block ps-2">
+                            <div>{{ $u->full_name }}</div>
+                            <div class="mt-1 small text-secondary">{{ ucwords(str_replace('_', ' ', $u->account_type)) }}</div>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Sign out</button>
+                        </form>
                     </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">Profile</a>
-                    <a href="#" class="dropdown-item">Settings</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('login') }}" class="dropdown-item">Sign out</a>
                 </div>
-            </div>
+            @endauth
 
         </div>
     </div>
